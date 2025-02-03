@@ -117,7 +117,7 @@ const Dashboard = () => {
             SDP
           </div>
           <Nav className="flex-column flex-grow-1 px-3">
-            <Nav.Link href="#" className="mb-2" active>
+            <Nav.Link href="" className="mb-2" active>
               <i className="bi bi-square-fill me-2"></i> Bid
             </Nav.Link>
 
@@ -308,15 +308,20 @@ const Dashboard = () => {
                             </div>
                           </td>
                           <td>
-                            <a
-                              href="#"
+                            <button
                               onClick={() => toggleDetails(index)}
-                              className="view-details-btn"
+                              className="view-details-btn btn btn-link p-0 text-decoration-none"
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "blue",
+                                cursor: "pointer",
+                              }}
                             >
                               {showDetails[index]
                                 ? "View less ▲"
                                 : "View Details"}
-                            </a>
+                            </button>
                           </td>
                         </tr>
 
