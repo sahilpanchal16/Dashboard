@@ -1,64 +1,85 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Alert } from "react-bootstrap";
+import { Form, Button, Container, Card } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      const res = await axios.get(
-        `${formData.email}&password=${formData.password}`
+      const response = await axios.get(
+        "https://67a05b2c24322f8329c5ef37.mockapi.io/api/user/users"
+      );
+      const users = response.data;
+      const user = users.find(
+        (u) => u.email === email && u.password === password
       );
 
-      if (res.data.length > 0) {
-        localStorage.setItem("token", JSON.stringify(res.data[0]));
+      if (user) {
+        console.log("Login successful:", user);
         navigate("/dashboard");
       } else {
-        setError("Invalid credentials.");
+        alert("Invalid email or password");
       }
-    } catch (err) {
-      setError("Login failed.");
+    } catch (error) {
+      console.error("Error logging in:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-4">
-      <h2>Login</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="email">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+    <Container
+      className="d-flex justify-content-center align-items-center"
+      style={{ height: "100vh" }}
+    >
+      <Card style={{ width: "400px" }} className="p-4 shadow">
+        <h3 className="text-center mb-4">Login</h3>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Form.Group controlId="password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="submit" className="mt-3">
-          Login
-        </Button>
-      </Form>
+          <Button
+            variant="primary"
+            type="submit"
+            className="w-100"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+        </Form>
+        <div className="text-center mt-3">
+          <p>
+            Don't have an account? <Link to="/signup">Sign up</Link>
+          </p>
+        </div>
+      </Card>
     </Container>
   );
 };

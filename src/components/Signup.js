@@ -1,70 +1,102 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Alert } from "react-bootstrap";
+import { Form, Button, Container, Card } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
+    const user = {
+      name,
+      email,
+      password,
+    };
+
     try {
-      await axios.post("", formData);
-      navigate("/login");
-    } catch (err) {
-      setError("Signup failed. Try again.");
+      const response = await axios.post(
+        "https://67a05b2c24322f8329c5ef37.mockapi.io/api/user/users",
+        user
+      );
+      if (response.status === 201) {
+        navigate("/");
+      } else {
+        console.error(
+          "Failed to create user, response status:",
+          response.status
+        );
+      }
+    } catch (error) {
+      console.error("Error signing up:", error.response || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-4">
-      <h2>Signup</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="username">
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-            type="text"
-            name="username"
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+    <Container
+      className="d-flex justify-content-center align-items-center"
+      style={{ height: "100vh" }}
+    >
+      <Card style={{ width: "400px" }} className="p-4 shadow">
+        <h3 className="text-center mb-4">Sign Up</h3>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Full Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Form.Group controlId="email">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            name="email"
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Form.Group controlId="password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="submit" className="mt-3">
-          Signup
-        </Button>
-      </Form>
+          <Button
+            variant="primary"
+            type="submit"
+            className="w-100"
+            disabled={loading}
+          >
+            {loading ? "Signing Up..." : "Sign Up"}
+          </Button>
+        </Form>
+
+        <div className="mt-3 text-center">
+          <span>
+            Already have an account? <Link to="/">Login</Link>
+          </span>
+        </div>
+      </Card>
     </Container>
   );
 };
